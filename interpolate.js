@@ -1,27 +1,7 @@
 const fs = require('fs');
+const numeric = require('numeric');
 
-function interpolate(xs, ys, x)
-{
-    let closest = 0;
-    while (closest < xs.length && xs[closest] < x)
-    {
-        closest++;
-    }
-    if (closest == xs.length)
-    {
-        let b = xs[closest - 1];
-        let a = xs[closest - 3];
-        let delta = (x - a) / (b - a);
-        return ys[closest - 1] + (ys[closest - 1] - ys[closest - 3]) * delta;
-    }
-    else
-    {
-        let b = xs[closest];
-        let a = xs[closest - 1];
-        let delta = (x - a) / (b - a);
-        return ys[closest - 1] + (ys[closest] - ys[closest - 1]) * delta;
-    }
-}
+const { functionToFit } = require("./regression");
 
 (async () => {
 
@@ -39,7 +19,19 @@ function interpolate(xs, ys, x)
 
         let dateB = (new Date("1 Jan 2023")).getTime();
         let dateA = (new Date("1 Jan 2022")).getTime();
-        let increase = interpolate(times, stacks, dateB) / interpolate(times, stacks, dateA);
+
+        let ms = times.map(time => (new Date(time)).getTime());
+
+        const bestFitFunction;
+        try {
+            bestFitFunction = functionToFit(ms, stacks, 2);
+        } catch (error) {
+            bestFitFunction = x => null;
+        }
+
+        const projection = x => Math.max(bestFitFunction(x), 0);
+
+        let increase = projection(dateB) / projection(dateA);
         if (stacks[stacks.length-1] > 200)
             results.push({ 'name': tool, 'growth': Math.round(increase * 100 - 100) || 0 , 'latest': stacks[stacks.length-1]});
     }
