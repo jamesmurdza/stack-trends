@@ -1,6 +1,7 @@
 import { globby } from 'globby';
 import fs from 'fs';
 import { plot } from 'nodeplotlib';
+import { promisify } from 'util';
 
 import { functionToFit } from './regression.js';
 
@@ -47,6 +48,9 @@ for (const tool of tools) {
 
 const sortResult = (a, b) => b < a ? -1 : (a > b ? 1 : 0);
 results.sort((a, b) => sortResult(a.growth, b.growth));
+
+const writeFileAsync = promisify(fs.writeFile)
+await writeFileAsync("./compare.json", JSON.stringify(results));
 
 for (let result of results) {
     //console.log(result.growth + "% " + result.year1 + ' ' + result.year2 + ' ' + result.name)
