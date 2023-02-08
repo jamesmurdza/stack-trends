@@ -19,6 +19,10 @@ var process = require('process');
                               votes: $("label:contains('Votes')").next().html(),
                               followers: $("label:contains('Followers')").next().html(),
                               stacks: $("label:contains('Stacks')").next().html(),
+                              image: $(".css-1m5j888").attr("src"),
+                              name: $(".css-1cylxxa").text(),
+                              description: $(".css-ey1s1s").text(),
+                              url: request.url,
                               time: request.userData.time
                         }
 
@@ -50,13 +54,14 @@ var process = require('process');
 
             timeline = await getTimeline(url);
             urls = [
-                  { url: url, userData: { time: (new Date()).toISOString() } },
-                  ...timeline.mementos.map(({ url, time }) => ({ url: url, userData: { time: time } }))
+                  ...timeline.mementos.map(({ url, time }) => ({ url: url, userData: { time: time } })),
+                  { url: url, userData: { time: (new Date()).toISOString() } }
             ]
             await crawler.run(urls);
             let data = await dataset.getData();
+            let items = data.items.sort((a, b) => (a.time > b.time) ? 1 : -1);
 
-            fs.writeFile(`tools/${tool}.json`, JSON.stringify(data.items), (error) => {
+            fs.writeFile(`tools/${tool}.json`, JSON.stringify(items), (error) => {
                   if (error) {
                         throw error;
                   }
