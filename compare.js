@@ -37,9 +37,13 @@ for (const tool of tools) {
     const projection = x => Math.max(bestFitFunction(x), 0);
 
     let increase = projection(dateB) / projection(dateA);
+    let last = timeline[timeline.length-1];
     if (stacks[stacks.length - 1] > 200)
         results.push({
-            'name': tool,
+            'id': tool,
+            'name': last.name,
+            'image': last.image,
+            'description': last.description,
             'growth': Math.round(increase * 100 - 100) || 0,
             'year1': Math.round(projection(dateA)),
             'year2': Math.round(projection(dateB)),
@@ -50,9 +54,9 @@ const sortResult = (a, b) => b < a ? -1 : (a > b ? 1 : 0);
 results.sort((a, b) => sortResult(a.growth, b.growth));
 
 const writeFileAsync = promisify(fs.writeFile)
-await writeFileAsync("./compare.json", JSON.stringify(results));
+const res = await writeFileAsync("./compare/compare.json", JSON.stringify(results));
 
 for (let result of results) {
-    //console.log(result.growth + "% " + result.year1 + ' ' + result.year2 + ' ' + result.name)
+    console.log(`${result.growth}%\t${result.year1}\t${result.year2}\t${result.name} (${result.id})`)
 }
 
