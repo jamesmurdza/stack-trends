@@ -1,5 +1,6 @@
 import { globby } from 'globby';
 import fs from 'fs';
+import { plot } from 'nodeplotlib';
 
 import { functionToFit } from './regression.js';
 
@@ -32,18 +33,25 @@ for (const tool of tools) {
         } catch (error) {
             bestFitFunction = x => null;
         }
-
         const projection = x => Math.max(bestFitFunction(x), 0);
 
         let increase = projection(dateB) / projection(dateA);
         if (stacks[stacks.length-1] > 200)
-            results.push({ 'name': tool, 'growth': Math.round(increase * 100 - 100) || 0 , 'latest': Math.round(stacks[stacks.length-1])});
+            results.push({
+            'name': tool,
+            'growth': Math.round(increase * 100 - 100) || 0 ,
+            'a': Math.round(projection(dateA)),
+            'b': Math.round(projection(dateB)),
+            });
     }
 
     const sortResult = (a, b) => b < a ? -1 : (a > b ? 1 : 0);
     results.sort((a, b) => sortResult(a.growth, b.growth));
     for (let result of results) {
-        console.log("+" + result.growth + "% " + result.latest + ' ' + result.name)
+        console.log( result.growth + "% " + result.a + ' ' + result.b + ' ' + result.name)
     }
+
+
+
 
 
