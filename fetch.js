@@ -1,7 +1,7 @@
-var wayback = require('wayback-machine');
-var { CheerioCrawler, Dataset, Actor } = require('crawlee');
-var fs = require('fs');
-var process = require('process');
+import wayback from 'wayback-machine';
+import { CheerioCrawler, Dataset } from 'crawlee';
+import fs from 'fs';
+import process from 'process';
 
 (async () => {
 
@@ -52,8 +52,8 @@ var process = require('process');
                   });
             }
 
-            timeline = await getTimeline(url);
-            urls = [
+            const timeline = await getTimeline(url);
+            const urls = [
                   ...timeline.mementos.map(({ url, time }) => ({ url: url, userData: { time: time } })),
                   { url: url, userData: { time: (new Date()).toISOString() } }
             ]

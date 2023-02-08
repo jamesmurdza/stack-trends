@@ -1,3 +1,5 @@
+import numeric from 'numeric';
+
 // https://gist.github.com/jgphilpott/d38279e8fac9af31054e10b7363bf17e
 function polyfit(xArray, yArray, order) {
   if (xArray.length <= order) console.warn("Warning: Polyfit may be poorly conditioned.")
@@ -27,8 +29,7 @@ function functionWithCoefficients(coefficients) {
     }
 }
 
-function functionToFit(xArray, yArray, order) {
-      return functionWithCoefficients(polyfit(xArray, yArray, order))
+export function functionToFit(xArray, yArray, order) {
+  const coefficients = polyfit(xArray, yArray, order);
+  return functionWithCoefficients(coefficients)
 }
-
-module.exports = { polyfit, functionWithCoefficients, functionToFit };

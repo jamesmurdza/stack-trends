@@ -1,15 +1,19 @@
-const fs = require('fs');
-const numeric = require('numeric');
+import { globby } from 'globby';
+import fs from 'fs';
 
-const { functionToFit } = require("./regression");
+import { functionToFit } from './regression.js';
 
-(async () => {
+let tools = process.argv.slice(2);
+if (tools.length == 0) {
+    tools = await globby("tools/*.json");
+    tools = tools.map(path => path.match("\/(.*)\.json")[1]);
+}
 
-    const myArgs = process.argv.slice(2);
-    let results = [];
+let results = [];
 
-    for (const tool of myArgs) {
-        let rawdata = fs.readFileSync(`tools/${tool}.json`);
+for (const tool of tools) {
+    let path = `tools/${tool}.json`;
+        let rawdata = fs.readFileSync(path);
         let timeline = JSON.parse(rawdata);
         const sortDate = (a, b) => b < a ? -1 : (a > b ? 1 : 0);
         const parseCount = count => parseFloat(count) * ((count || "").includes("K") ? 1000 : 1);
@@ -22,7 +26,7 @@ const { functionToFit } = require("./regression");
 
         let ms = times.map(time => (new Date(time)).getTime());
 
-        const bestFitFunction;
+        let bestFitFunction;
         try {
             bestFitFunction = functionToFit(ms, stacks, 2);
         } catch (error) {
@@ -33,14 +37,13 @@ const { functionToFit } = require("./regression");
 
         let increase = projection(dateB) / projection(dateA);
         if (stacks[stacks.length-1] > 200)
-            results.push({ 'name': tool, 'growth': Math.round(increase * 100 - 100) || 0 , 'latest': stacks[stacks.length-1]});
+            results.push({ 'name': tool, 'growth': Math.round(increase * 100 - 100) || 0 , 'latest': Math.round(stacks[stacks.length-1])});
     }
 
     const sortResult = (a, b) => b < a ? -1 : (a > b ? 1 : 0);
     results.sort((a, b) => sortResult(a.growth, b.growth));
-    for (result of results) {
+    for (let result of results) {
         console.log("+" + result.growth + "% " + result.latest + ' ' + result.name)
     }
 
-})();
 

@@ -1,8 +1,7 @@
-const fs = require('fs');
-const { plot } = require('nodeplotlib');
-const numeric = require('numeric');
+import fs from 'fs';
+import { plot } from 'nodeplotlib';
 
-const { functionToFit } = require("./regression");
+import { functionToFit } from './regression.js'
 
 (async () => {
 
@@ -19,7 +18,7 @@ const { functionToFit } = require("./regression");
         let stacks = timeline.map(({ stacks }) => parseCount(stacks));
 
         let ms = times.map(time => (new Date(time)).getTime());
-        const bestFitFunction = functionToFit(ms, stacks, 1);
+        const bestFitFunction = functionToFit(ms, stacks, 2);
         const projection = x => Math.max(bestFitFunction(x), 0);
 
         const trendline = ms.map(projection);
